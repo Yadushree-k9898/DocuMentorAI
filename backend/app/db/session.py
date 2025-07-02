@@ -1,20 +1,15 @@
+# app/db/session.py
+
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.ext.declarative import declarative_base
-from contextlib import contextmanager
-import os
+from sqlalchemy.orm import sessionmaker
+from app.core.config import settings
 
-# Example DB URL: adjust based on your actual connection string
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sql_app.db")
+engine = create_engine(settings.DATABASE_URL)
 
-engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})  # SQLite-specific
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False)
 
-Base = declarative_base()
-
-# Dependency for FastAPI
 def get_db():
-    db: Session = SessionLocal()
+    db = SessionLocal()
     try:
         yield db
     finally:
