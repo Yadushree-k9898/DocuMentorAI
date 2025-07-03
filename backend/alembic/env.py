@@ -1,20 +1,25 @@
 import sys
 import os
-
-# Add app to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app.db.base import Base
-from app.core.config import settings
-from sqlalchemy import engine_from_config, pool
 from logging.config import fileConfig
-
-# Load DB URL from app settings
+from sqlalchemy import engine_from_config, pool
 from alembic import context
 
+# Import settings and Base
+from app.core.config import settings
+from app.db.base import Base
+
+# 👇 Import models to make sure metadata includes them
+from app.models import user
+
+# Load Alembic config
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
+config.set_main_option("sqlalchemy.url", settings.database_url)
 
-fileConfig(config.config_file_name)
+# Set up logging
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name)
 
+# Set target metadata
 target_metadata = Base.metadata
