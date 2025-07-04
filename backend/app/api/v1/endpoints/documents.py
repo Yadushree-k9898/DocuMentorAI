@@ -2,14 +2,15 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.models.document import Document
-from app.utils.pdf_utils import extract_text_from_pdf
-from app.services.document_service import summarize_text_with_gemini  # ✅ NEW
+from app.utils.pdf_utils import extract_chunks_from_pdf
+from app.services.document_service import summarize_text_with_gemini  
 
 import shutil, os
 
 router = APIRouter()
 UPLOAD_DIR = "uploads"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 
 @router.post("/upload-pdf")
 async def upload_pdf(
@@ -24,7 +25,9 @@ async def upload_pdf(
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    text = extract_text_from_pdf(file_path)
+    # 🔁 Fix: Convert chunks to dicts before saving
+    chunks = extract_chunks_from_pdf(file_path)
+    text = [chunk.dict() for chunk in chunks]
 
     document = Document(
         filename=file.filename,
@@ -37,7 +40,7 @@ async def upload_pdf(
 
     return {"message": "PDF uploaded successfully", "document_id": document.id}
 
-# ✅ NEW ENDPOINT: Summarize a document using Gemini
+
 @router.post("/{doc_id}/summarize")
 def summarize_document(
     doc_id: int,
