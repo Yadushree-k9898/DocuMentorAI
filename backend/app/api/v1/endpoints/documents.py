@@ -3,6 +3,8 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.models.document import Document
 from app.utils.pdf_utils import extract_text_from_pdf
+from app.services.document_service import summarize_text_with_gemini  # ✅ NEW
+
 import shutil, os
 
 router = APIRouter()
@@ -34,3 +36,21 @@ async def upload_pdf(
     db.refresh(document)
 
     return {"message": "PDF uploaded successfully", "document_id": document.id}
+
+# ✅ NEW ENDPOINT: Summarize a document using Gemini
+@router.post("/{doc_id}/summarize")
+def summarize_document(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    document = db.query(Document).filter(Document.id == doc_id, Document.user_id == current_user.id).first()
+    if not document:
+        raise HTTPException(status_code=404, detail="Document not found or access denied.")
+
+    if not document.text:
+        raise HTTPException(status_code=400, detail="Document has no extracted text.")
+
+    summary = summarize_text_with_gemini(document.text)
+
+    return {"summary": summary}
