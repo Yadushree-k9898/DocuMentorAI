@@ -1,7 +1,7 @@
 import google.generativeai as genai
 
 # 🔑 Paste your MakerSuite key directly here
-genai.configure(api_key="AIzaSyB4uSATHPObAWPyxdzf0v-EvoqnAN2Ot6M")
+genai.configure(api_key="api_key")
 
 print("\n📌 Listing Models:")
 try:
