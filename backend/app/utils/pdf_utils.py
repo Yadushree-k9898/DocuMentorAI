@@ -1,4 +1,4 @@
-import fitz  # PyMuPDF
+import fitz  
 from app.utils.chunking import chunk_text
 from app.schemas.document import DocumentChunk
 import uuid
