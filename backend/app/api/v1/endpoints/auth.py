@@ -4,7 +4,7 @@ from app.schemas.user import UserCreate, UserLogin
 from app.services.auth_service import register_user, login_user
 from app.dependencies import get_db
 
-router = APIRouter(tags=["auth"])  # ✅ Removed internal prefix
+router = APIRouter(tags=["auth"])  
 
 @router.post("/register")
 def register(user: UserCreate, db: Session = Depends(get_db)):

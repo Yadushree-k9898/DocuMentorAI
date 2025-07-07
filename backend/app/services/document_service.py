@@ -1,16 +1,19 @@
-import google.generativeai as genai
-from app.core.config import settings
+# app/services/document_service.py
 
-genai.configure(api_key=settings.gemini_api_key)
+import ollama
 
-def summarize_text_with_gemini(text: str) -> str:
+def summarize_text_with_ollama(text: str) -> str:
     if not text:
         return "No content to summarize."
 
     try:
-        # Use a valid, supported model
-        model = genai.GenerativeModel("models/gemini-1.5-pro-latest")
-        response = model.generate_content(f"Summarize this document:\n\n{text[:8000]}")
-        return response.text.strip()
+        prompt = f"Summarize the following document:\n\n{text[:4000]}"
+        response = ollama.chat(
+            model='mistral',
+            messages=[
+                {"role": "user", "content": prompt}
+            ]
+        )
+        return response['message']['content'].strip()
     except Exception as e:
         return f"Error during summarization: {str(e)}"

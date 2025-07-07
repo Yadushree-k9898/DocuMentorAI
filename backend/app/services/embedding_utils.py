@@ -1,14 +1,9 @@
+# app/services/embedding_utils.py
+
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_community.embeddings import HuggingFaceEmbeddings
 from langchain_community.vectorstores import FAISS
-from langchain_community.document_loaders import TextLoader
 import os
-
-from app.core.config import settings   
-     
-
-os.environ["GOOGLE_API_KEY"] = settings.gemini_api_key  
-
 
 CHUNK_SIZE = 500
 CHUNK_OVERLAP = 50
@@ -21,7 +16,7 @@ def split_text(text: str):
     return splitter.create_documents([text])
 
 def get_embeddings():
-    return GoogleGenerativeAIEmbeddings(model="models/embedding-001")
+    return HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
 
 def save_embeddings_to_faiss(chunks, doc_id: str):
     vectorstore = FAISS.from_documents(chunks, embedding=get_embeddings())

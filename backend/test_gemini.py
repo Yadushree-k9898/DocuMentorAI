@@ -1,19 +1,9 @@
 import google.generativeai as genai
 
-# 🔑 Paste your MakerSuite key directly here
-genai.configure(api_key="api_key")
+genai.configure(api_key="AIzaSyDlSFUmi9bK5sXbQLbiJ9-nPDx-0E2FqTg")
 
-print("\n📌 Listing Models:")
-try:
-    for model in genai.list_models():
-        print("✅", model.name, model.supported_generation_methods)
-except Exception as e:
-    print("❌ Error listing models:", e)
+# ✅ Use the correct full model name
+model = genai.GenerativeModel(model_name="models/gemini-1.5-pro")
 
-print("\n📄 Testing generateContent with gemini-pro")
-try:
-    model = genai.GenerativeModel(model_name="models/gemini-pro")
-    response = model.generate_content("Summarize the benefits of AI in education.")
-    print("✅ Summary:\n", response.text)
-except Exception as e:
-    print("❌ Error during summarization:", e)
+response = model.generate_content("Hello! How are you?")
+print(response.text)

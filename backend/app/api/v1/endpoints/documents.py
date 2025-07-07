@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.models.document import Document
 from app.utils.pdf_utils import extract_chunks_from_pdf
-from app.services.document_service import summarize_text_with_gemini  
+from app.services.document_service import summarize_text_with_ollama
+
 
 import shutil, os
 
@@ -54,6 +55,7 @@ def summarize_document(
     if not document.text:
         raise HTTPException(status_code=400, detail="Document has no extracted text.")
 
-    summary = summarize_text_with_gemini(document.text)
+    summary = summarize_text_with_ollama(document.text)
+
 
     return {"summary": summary}
