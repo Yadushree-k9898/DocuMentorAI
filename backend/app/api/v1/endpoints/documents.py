@@ -42,6 +42,25 @@ async def upload_pdf(
     return {"message": "PDF uploaded successfully", "document_id": document.id}
 
 
+# @router.post("/{doc_id}/summarize")
+# def summarize_document(
+#     doc_id: int,
+#     db: Session = Depends(get_db),
+#     current_user=Depends(get_current_user)
+# ):
+#     document = db.query(Document).filter(Document.id == doc_id, Document.user_id == current_user.id).first()
+#     if not document:
+#         raise HTTPException(status_code=404, detail="Document not found or access denied.")
+
+#     if not document.text:
+#         raise HTTPException(status_code=400, detail="Document has no extracted text.")
+
+#     text_chunks = [chunk.get("content", "") for chunk in document.text if chunk.get("content")]
+#     summary = summarize_text_with_ollama(text_chunks)
+
+
+#     return {"summary": summary}
+
 @router.post("/{doc_id}/summarize")
 def summarize_document(
     doc_id: int,
@@ -55,7 +74,18 @@ def summarize_document(
     if not document.text:
         raise HTTPException(status_code=400, detail="Document has no extracted text.")
 
-    summary = summarize_text_with_ollama(document.text)
+    import json
 
+    try:
+        # Handle case: text stored as JSON string (Text column)
+        if isinstance(document.text, str):
+            parsed = json.loads(document.text)
+        else:
+            parsed = document.text  # Already a list of dicts (if using Column(JSON))
 
+        text_chunks = [chunk.get("content", "") for chunk in parsed if chunk.get("content")]
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to parse document text chunks: {str(e)}")
+
+    summary = summarize_text_with_ollama(text_chunks)
     return {"summary": summary}
