@@ -11,7 +11,8 @@ from app.core.config import settings
 from app.db.base import Base
 
 # 👇 Import models to make sure metadata includes them
-from app.models import user
+from app.models import user, document
+
 
 # Load Alembic config
 config = context.config
@@ -21,5 +22,6 @@ config.set_main_option("sqlalchemy.url", settings.database_url)
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
-# Set target metadata
+# Set target metadata for Alembic autogeneration
 target_metadata = Base.metadata
+
