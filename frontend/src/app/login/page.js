@@ -1,17 +1,21 @@
 'use client';
+
 import AuthForm from '../../components/AuthForm';
-import useAuth from '../../hooks/useAuth';
-import api from '../../lib/api';
 import { useState } from 'react';
+import api from '../../lib/api';
+import { useAuthStore } from '../../store/authStore';
+import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const login = useAuthStore((state) => state.login);
   const [error, setError] = useState('');
+  const router = useRouter();
 
   const handleLogin = async (form) => {
     try {
       const res = await api.post('/auth/login', form);
-      login(res.data.access_token);
+      login(res.data.access_token); // ✅ Call Zustand login
+      router.push('/dashboard');    // ✅ Navigate manually after login
     } catch (err) {
       setError('Invalid credentials');
     }
@@ -25,15 +29,15 @@ export default function LoginPage() {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">Welcome Back</h1>
             <p className="text-gray-600">Sign in to your account</p>
           </div>
-          
+
           <AuthForm isLogin onSubmit={handleLogin} />
-          
+
           {error && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-red-700 text-sm font-medium">{error}</p>
             </div>
           )}
-          
+
           <div className="mt-6 text-center">
             <p className="text-gray-600">
               Don't have an account?{' '}

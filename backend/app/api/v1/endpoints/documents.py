@@ -1,6 +1,7 @@
 from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
+from app.models.user import User
 from app.models.document import Document
 from app.utils.pdf_utils import extract_chunks_from_pdf
 from app.services.document_service import summarize_text_with_gemini
@@ -116,3 +117,5 @@ def get_user_documents(
         }
         for doc in documents
     ]
+
+
