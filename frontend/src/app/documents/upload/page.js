@@ -34,7 +34,7 @@ export default function UploadPage() {
     formData.append('file', file);
 
     try {
-      await api.post('/documents/upload', formData, {
+      await api.post('/documents/upload-pdf', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },

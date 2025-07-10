@@ -15,7 +15,7 @@ model = GenerativeModel("models/gemini-1.5-flash")
 from app.services.gemini_service import call_gemini_api
 import asyncio
 
-def summarize_text_with_gemini(text_chunks: list[str], max_chunks: int = 5) -> str:
+async def summarize_text_with_gemini(text_chunks: list[str], max_chunks: int = 5) -> str:
     summaries = []
 
     for idx, chunk in enumerate(text_chunks[:max_chunks]):
@@ -25,7 +25,7 @@ def summarize_text_with_gemini(text_chunks: list[str], max_chunks: int = 5) -> s
 
         prompt = f"Summarize the following text:\n\n{chunk}"
         try:
-            summary = asyncio.run(call_gemini_api(prompt))  # calls async function from sync context
+            summary = await call_gemini_api(prompt)  
             summaries.append(summary)
         except Exception as e:
             summaries.append(f"[Chunk {idx+1} Error] {str(e)}")

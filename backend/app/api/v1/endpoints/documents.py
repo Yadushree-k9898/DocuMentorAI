@@ -16,6 +16,46 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # ------------------------------------
 # 📤 Upload PDF Route
 # ------------------------------------
+# @router.post("/upload-pdf")
+# async def upload_pdf(
+#     file: UploadFile = File(...),
+#     db: Session = Depends(get_db),
+#     current_user=Depends(get_current_user)
+# ):
+#     if not file.filename.endswith(".pdf"):
+#         raise HTTPException(status_code=400, detail="Only PDF files allowed.")
+
+#     # Use unique filename to avoid overwriting
+#     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
+#     file_path = os.path.join(UPLOAD_DIR, unique_filename)
+
+#     # Save file
+#     with open(file_path, "wb") as buffer:
+#         shutil.copyfileobj(file.file, buffer)
+
+#     # Extract and convert chunks to dict
+#     chunks = extract_chunks_from_pdf(file_path)
+#     text = [chunk.dict() for chunk in chunks]
+
+#     # Create and save document
+#     document = Document(
+#         filename=unique_filename,
+#         text=text,
+#         user_id=current_user.id,
+#         created_at=datetime.utcnow()  # ensure your model supports this default
+#     )
+#     db.add(document)
+#     db.commit()
+#     db.refresh(document)
+
+#     return {
+#         "message": "PDF uploaded successfully",
+#         "document_id": document.id,
+#         "filename": document.filename,
+#         "created_at": document.created_at
+#     }
+
+
 @router.post("/upload-pdf")
 async def upload_pdf(
     file: UploadFile = File(...),
@@ -25,41 +65,47 @@ async def upload_pdf(
     if not file.filename.endswith(".pdf"):
         raise HTTPException(status_code=400, detail="Only PDF files allowed.")
 
-    # Use unique filename to avoid overwriting
     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
     file_path = os.path.join(UPLOAD_DIR, unique_filename)
 
-    # Save file
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
-    # Extract and convert chunks to dict
+    # Extract PDF chunks
     chunks = extract_chunks_from_pdf(file_path)
     text = [chunk.dict() for chunk in chunks]
+    text_chunks = [chunk["content"] for chunk in text if "content" in chunk]
 
-    # Create and save document
+    # ✅ Summarize during upload
+    summary = await summarize_text_with_gemini(text_chunks)
+
+    # Save document with summary
     document = Document(
         filename=unique_filename,
         text=text,
+        summary=summary,  # ✅ Save summary here
         user_id=current_user.id,
-        created_at=datetime.utcnow()  # ensure your model supports this default
+        created_at=datetime.utcnow()
     )
     db.add(document)
     db.commit()
     db.refresh(document)
 
     return {
-        "message": "PDF uploaded successfully",
+        "message": "PDF uploaded and summarized successfully",
         "document_id": document.id,
         "filename": document.filename,
-        "created_at": document.created_at
+        "created_at": document.created_at,
+        "summary": summary  
     }
+
+
 
 # ------------------------------------
 # 📄 Summarize Route
 # ------------------------------------
 @router.post("/{doc_id}/summarize")
-def summarize_document(
+async def summarize_document(
     doc_id: int,
     db: Session = Depends(get_db),
     current_user=Depends(get_current_user)
@@ -86,7 +132,7 @@ def summarize_document(
         raise HTTPException(status_code=500, detail=f"Failed to parse document text chunks: {str(e)}")
 
     # Generate summary using T5
-    summary = summarize_text_with_gemini(text_chunks)
+    summary =  await summarize_text_with_gemini(text_chunks)
 
     # Save summary to database
     document.summary = summary
