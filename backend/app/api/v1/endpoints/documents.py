@@ -119,3 +119,28 @@ def get_user_documents(
     ]
 
 
+@router.get("/documents/{doc_id}")
+def get_single_document(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    print(f"🔍 Fetching document with ID: {doc_id} for user ID: {current_user.id}")
+
+    document = db.query(Document).filter(
+        Document.id == doc_id,
+        Document.user_id == current_user.id
+    ).first()
+
+    if not document:
+        print("❌ Document not found or does not belong to the user.")
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    print("✅ Document found and returned.")
+    return {
+        "id": document.id,
+        "filename": document.filename,
+        "created_at": document.created_at,
+        "text": document.text,
+        "summary": document.summary or "No summary yet"
+    }
