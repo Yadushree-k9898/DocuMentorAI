@@ -26,4 +26,4 @@ class DocumentChunk(BaseModel):
             }
         }
         extra = "forbid"
-        orm_mode = True
+        from_attributes = True
