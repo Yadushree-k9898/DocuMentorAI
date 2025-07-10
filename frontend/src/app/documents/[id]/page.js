@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import api from '../../../lib/api';
 import { useAuthStore } from '../../../store/authStore';
+import ChatBox from '../../../components/ChatBox'; // 👈 Import ChatBox
 
 export default function DocumentDetailPage() {
   const { id } = useParams();
@@ -38,7 +39,6 @@ export default function DocumentDetailPage() {
   }, [id, token]);
 
   if (!token) return null;
-
   if (loading) return <div className="p-6 text-gray-600">Loading document...</div>;
   if (error) return <div className="p-6 text-red-600">{error}</div>;
   if (!document) return null;
@@ -65,7 +65,7 @@ export default function DocumentDetailPage() {
         </p>
       </div>
 
-      <div className="space-y-6">
+      <div className="space-y-6 mb-10">
         <h2 className="text-lg font-semibold text-indigo-700">Full Extracted Text</h2>
         {parsedText.length > 0 ? (
           parsedText.map((chunk, idx) => (
@@ -78,6 +78,9 @@ export default function DocumentDetailPage() {
           <p className="text-gray-500">No extracted text found.</p>
         )}
       </div>
+
+      {/* ✅ Add Q&A Chat here */}
+      <ChatBox docId={document.id} />
     </div>
   );
 }
