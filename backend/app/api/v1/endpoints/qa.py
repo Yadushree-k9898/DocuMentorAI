@@ -22,6 +22,47 @@ def embed_document(doc_id: int, db: Session = Depends(get_db), current_user=Depe
 
 
 
+# @router.post("/{doc_id}/ask")
+# def ask_question(
+#     doc_id: int,
+#     question: str,
+#     db: Session = Depends(get_db),
+#     current_user=Depends(get_current_user)
+# ):
+#     print(f"📥 ASK: doc_id={doc_id}, user_id={current_user.id}, question={question}")
+#     # 🔐 Ensure the user has access to the document
+#     doc = db.query(Document).filter_by(id=doc_id, user_id=current_user.id).first()
+#     if not doc or not doc.text:
+#         raise HTTPException(status_code=404, detail="Document not found.")
+
+#     try:
+#         # 🧠 Try answering from existing embeddings
+#         raw_answer = answer_question(str(doc_id), question)
+#         answer = raw_answer["answer"] if isinstance(raw_answer, dict) else str(raw_answer)
+#     except FileNotFoundError:
+#         # ⚙️ Embed the document on-the-fly if embeddings are missing
+#         try:
+#             process_document(str(doc_id), doc.text)
+#             raw_answer = answer_question(str(doc_id), question)
+#             answer = raw_answer["answer"] if isinstance(raw_answer, dict) else str(raw_answer)
+#         except Exception as e:
+#             raise HTTPException(status_code=500, detail=f"Failed to auto-embed: {str(e)}")
+#     except Exception as e:
+#         raise HTTPException(status_code=500, detail=f"Failed to answer: {str(e)}")
+
+#     # 💾 Save to chat history
+#     chat_entry = ChatHistory(
+#         user_id=current_user.id,
+#         document_id=doc.id,
+#         question=question,
+#         answer=answer,
+#     )
+#     db.add(chat_entry)
+#     db.commit()
+
+#     return {"answer": answer}
+
+
 @router.post("/{doc_id}/ask")
 def ask_question(
     doc_id: int,
@@ -30,7 +71,8 @@ def ask_question(
     current_user=Depends(get_current_user)
 ):
     print(f"📥 ASK: doc_id={doc_id}, user_id={current_user.id}, question={question}")
-    # 🔐 Ensure the user has access to the document
+
+    # 🔐 Validate access
     doc = db.query(Document).filter_by(id=doc_id, user_id=current_user.id).first()
     if not doc or not doc.text:
         raise HTTPException(status_code=404, detail="Document not found.")
@@ -38,15 +80,37 @@ def ask_question(
     try:
         # 🧠 Try answering from existing embeddings
         raw_answer = answer_question(str(doc_id), question)
-        answer = raw_answer["answer"] if isinstance(raw_answer, dict) else str(raw_answer)
+        print(f"🔎 Raw Answer: {raw_answer}")
+
+        # 🔐 Validate response
+        if isinstance(raw_answer, dict):
+            if "error" in raw_answer:
+                raise ValueError(f"LLM Error: {raw_answer['error']}")
+            answer = raw_answer.get("answer")
+            if not answer:
+                raise ValueError("Answer key is missing or empty.")
+        else:
+            answer = str(raw_answer)
+
     except FileNotFoundError:
-        # ⚙️ Embed the document on-the-fly if embeddings are missing
+        # 🔁 Attempt auto-embedding if needed
         try:
+            print("⚙️ Embeddings not found. Attempting to embed...")
             process_document(str(doc_id), doc.text)
             raw_answer = answer_question(str(doc_id), question)
-            answer = raw_answer["answer"] if isinstance(raw_answer, dict) else str(raw_answer)
+            print(f"🔁 Retried Answer: {raw_answer}")
+
+            if isinstance(raw_answer, dict):
+                if "error" in raw_answer:
+                    raise ValueError(f"LLM Error after embedding: {raw_answer['error']}")
+                answer = raw_answer.get("answer")
+                if not answer:
+                    raise ValueError("Answer key is missing or empty after embedding.")
+            else:
+                answer = str(raw_answer)
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Failed to auto-embed: {str(e)}")
+
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Failed to answer: {str(e)}")
 
@@ -61,6 +125,7 @@ def ask_question(
     db.commit()
 
     return {"answer": answer}
+
 
 
 @router.get("/{doc_id}/history")
