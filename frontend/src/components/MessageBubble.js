@@ -1,26 +1,35 @@
-'use client';
-
-import React from 'react';
-import { cn } from '../lib/utils'; 
+"use client"
+import { motion } from "framer-motion"
+import { User, Bot } from "lucide-react"
+import { Card, CardContent } from "@/components/ui/card"
+import { cn } from "../lib/utils"
 
 export default function MessageBubble({ message, isUser }) {
   return (
-    <div
-      className={cn(
-        'flex mb-2',
-        isUser ? 'justify-end' : 'justify-start'
-      )}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className={cn("flex mb-4", isUser ? "justify-end" : "justify-start")}
     >
-      <div
-        className={cn(
-          'max-w-[75%] px-4 py-2 rounded-lg text-sm shadow-md',
-          isUser
-            ? 'bg-blue-600 text-white rounded-br-none'
-            : 'bg-gray-200 text-gray-800 rounded-bl-none'
-        )}
-      >
-        {message}
+      <div className={cn("flex items-start gap-3 max-w-[80%]", isUser ? "flex-row-reverse" : "flex-row")}>
+        {/* Avatar */}
+        <div
+          className={cn(
+            "w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0",
+            isUser ? "bg-primary/10" : "bg-gradient-to-br from-primary/20 to-purple-600/20",
+          )}
+        >
+          {isUser ? <User className="h-4 w-4 text-primary" /> : <Bot className="h-4 w-4 text-primary" />}
+        </div>
+
+        {/* Message */}
+        <Card className={cn("shadow-sm", isUser ? "bg-primary text-primary-foreground" : "bg-muted/50")}>
+          <CardContent className="p-3">
+            <p className="text-sm leading-relaxed whitespace-pre-line">{message}</p>
+          </CardContent>
+        </Card>
       </div>
-    </div>
-  );
+    </motion.div>
+  )
 }

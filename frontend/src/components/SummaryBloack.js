@@ -1,12 +1,26 @@
-'use client';
+"use client"
+import { motion } from "framer-motion"
+import { Brain } from "lucide-react"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function SummaryBlock({ summary }) {
-  if (!summary) return null;
+  if (!summary) return null
 
   return (
-    <div className="mt-6 p-4 bg-gray-100 border rounded-lg text-sm text-gray-800">
-      <h2 className="font-semibold text-base mb-2">📄 Document Summary</h2>
-      <p>{summary}</p>
-    </div>
-  );
+    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <Card className="border-0 bg-gradient-to-br from-primary/5 via-background to-purple-600/5 shadow-lg">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <Brain className="h-5 w-5 text-primary" />
+            AI Generated Summary
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="prose prose-sm max-w-none dark:prose-invert">
+            <p className="text-foreground leading-relaxed whitespace-pre-line">{summary}</p>
+          </div>
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
 }

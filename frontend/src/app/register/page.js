@@ -1,100 +1,188 @@
-'use client';
-import { useState } from 'react';
-import api from '../../lib/api';
-import { useRouter } from 'next/navigation';
+"use client"
+import { useState, useCallback, useTransition } from "react"
+import { useRouter } from "next/navigation"
+import { motion } from "framer-motion"
+import { Eye, EyeOff, Mail, Lock, User, Sparkles } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
+import api from "../../lib/api"
 
 export default function RegisterPage() {
-  const router = useRouter();
-  const [form, setForm] = useState({ username: '', email: '', password: '' });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const router = useRouter()
+  const [form, setForm] = useState({ username: "", email: "", password: "" })
+  const [error, setError] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [isPending, startTransition] = useTransition()
 
-  const handleChange = (e) =>
-    setForm({ ...form, [e.target.name]: e.target.value });
+  const handleChange = useCallback((e) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }))
+  }, [])
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    
-    try {
-      await api.post('/auth/register', form);
-      router.push('/login');
-    } catch (err) {
-      setError(err?.response?.data?.detail || 'Registration failed');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const handleSubmit = useCallback(
+    async (e) => {
+      e.preventDefault()
+      setError("")
+      setLoading(true)
 
-  const fieldLabels = {
-    username: 'Username',
-    email: 'Email Address',
-    password: 'Password'
-  };
+      try {
+        await api.post("/auth/register", form)
+        startTransition(() => router.push("/login"))
+      } catch (err) {
+        console.error("[❌] Register error:", err?.response?.data || err.message)
+        const msg = err?.response?.data?.detail || "Registration failed. Please try again."
+        setError(msg)
+      } finally {
+        setLoading(false)
+      }
+    },
+    [form, router],
+  )
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-pink-100 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-2xl border border-white/20 p-8">
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">Create Account</h1>
-            <p className="text-gray-600">Join us today and get started</p>
-          </div>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {['username', 'email', 'password'].map((field) => (
-              <div key={field}>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  {fieldLabels[field]}
-                </label>
-                <input
-                  type={field === 'password' ? 'password' : field === 'email' ? 'email' : 'text'}
-                  name={field}
-                  placeholder={`Enter your ${fieldLabels[field].toLowerCase()}`}
-                  value={form[field]}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 bg-white/70 backdrop-blur-sm placeholder-gray-500"
-                />
-              </div>
-            ))}
-
-            {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                <p className="text-red-700 text-sm font-medium">{error}</p>
-              </div>
-            )}
-
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium py-3 px-4 rounded-lg hover:from-blue-700 hover:to-purple-700 focus:ring-4 focus:ring-blue-300 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed transform hover:scale-[1.02] active:scale-[0.98]"
-            >
-              {loading ? (
-                <span className="flex items-center justify-center">
-                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  Creating Account...
-                </span>
-              ) : (
-                'Create Account'
-              )}
-            </button>
-          </form>
-
-          <div className="mt-6 text-center">
-            <p className="text-gray-600">
-              Already have an account?{' '}
-              <a href="/login" className="text-blue-600 hover:text-blue-700 font-medium transition-colors">
-                Sign in
-              </a>
-            </p>
-          </div>
-        </div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* Background Elements */}
+      <div className="absolute inset-0">
+        <div className="absolute top-1/4 right-1/4 w-64 h-64 bg-gradient-to-br from-purple-400/20 to-pink-600/20 rounded-full blur-3xl animate-float" />
+        <div
+          className="absolute bottom-1/4 left-1/4 w-64 h-64 bg-gradient-to-br from-blue-400/20 to-cyan-600/20 rounded-full blur-3xl animate-float"
+          style={{ animationDelay: "1.5s" }}
+        />
       </div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-md relative z-10"
+      >
+        <Card className="border-0 shadow-2xl bg-background/80 backdrop-blur-xl">
+          <CardHeader className="text-center pb-8">
+            <div className="flex justify-center mb-4">
+              <div className="p-3 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 shadow-lg">
+                <Sparkles className="h-8 w-8 text-white" />
+              </div>
+            </div>
+            <CardTitle className="text-2xl font-bold">Create Account</CardTitle>
+            <CardDescription className="text-base">
+              Join thousands of users transforming their document workflow
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="username" className="text-sm font-medium">
+                  Username
+                </Label>
+                <div className="relative">
+                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="username"
+                    name="username"
+                    type="text"
+                    placeholder="Choose a username"
+                    value={form.username}
+                    onChange={handleChange}
+                    required
+                    className="pl-10 h-12 bg-background/50 border-border/50 focus:bg-background transition-all duration-200"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-sm font-medium">
+                  Email Address
+                </Label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    name="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={form.email}
+                    onChange={handleChange}
+                    required
+                    className="pl-10 h-12 bg-background/50 border-border/50 focus:bg-background transition-all duration-200"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-sm font-medium">
+                  Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Create a strong password"
+                    value={form.password}
+                    onChange={handleChange}
+                    required
+                    className="pl-10 pr-10 h-12 bg-background/50 border-border/50 focus:bg-background transition-all duration-200"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-1 top-1/2 transform -translate-y-1/2 h-8 w-8 p-0"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Alert variant="destructive">
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                </motion.div>
+              )}
+
+              <Button
+                type="submit"
+                disabled={loading || isPending}
+                className="w-full h-12 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-600/90 hover:to-pink-600/90 text-white font-semibold shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-[1.02] disabled:transform-none"
+              >
+                {loading || isPending ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    Creating Account...
+                  </div>
+                ) : (
+                  "Create Account"
+                )}
+              </Button>
+            </form>
+
+            <div className="mt-6 text-center">
+              <p className="text-muted-foreground">
+                Already have an account?{" "}
+                <Button
+                  variant="link"
+                  className="p-0 h-auto font-semibold text-primary hover:text-primary/80"
+                  onClick={() => router.push("/login")}
+                >
+                  Sign in
+                </Button>
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
     </div>
-  );
+  )
 }
