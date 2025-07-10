@@ -1,0 +1,4 @@
+.ollama
+models/
+*.bin
+*.gguf
