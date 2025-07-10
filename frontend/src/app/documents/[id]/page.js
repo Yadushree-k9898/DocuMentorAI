@@ -9,6 +9,8 @@ import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
 import api from "../../../lib/api"
 import { useAuthStore } from "../../../store/authStore"
+import { ENDPOINTS } from "../../../constants/endpoints";
+
 
 const ChatBox = lazy(() => import("../../../components/ChatBox"))
 
@@ -32,7 +34,10 @@ export default function DocumentDetailPage() {
   useEffect(() => {
     const fetchDocument = async () => {
       try {
-        const res = await api.get(`/documents/documents/${id}`)
+        const res = await api.get(ENDPOINTS.DOCUMENTS.DETAIL(id))
+        
+        
+
         setDocument(res.data)
       } catch (err) {
         console.error("[❌] Failed to fetch document:", err)

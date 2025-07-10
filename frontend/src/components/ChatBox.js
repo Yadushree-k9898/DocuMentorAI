@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useAuthStore } from "../store/authStore"
+import { ENDPOINTS } from "../constants/endpoints"
 
 const MessageBubble = lazy(() => import("./MessageBubble"))
 
@@ -33,7 +34,7 @@ export default function ChatBox({ docId }) {
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const res = await fetch(`/api/v1/qa/${docId}/history`, {
+        const res = await fetch(ENDPOINTS.QA.CLEAR_HISTORY(docId), {
           headers: { Authorization: `Bearer ${token}` },
         })
         const text = await res.text()
@@ -62,7 +63,7 @@ export default function ChatBox({ docId }) {
     setHistory((prev) => [...prev, { question: currentQuestion, answer: null }])
 
     try {
-      const res = await fetch(`/api/v1/qa/${docId}/ask?question=${encodeURIComponent(currentQuestion)}`, {
+      const res = await fetch(ENDPOINTS.QA.ASK(docId, currentQuestion), {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -92,7 +93,7 @@ export default function ChatBox({ docId }) {
     if (!confirm("Are you sure you want to clear the chat history?")) return
 
     try {
-      await fetch(`/api/v1/qa/${docId}/history`, {
+      await fetch(ENDPOINTS.QA.HISTORY(docId), {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       })

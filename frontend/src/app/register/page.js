@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import api from "../../lib/api"
+import { ENDPOINTS } from "../../constants/endpoints";
+
 
 export default function RegisterPage() {
   const router = useRouter()
@@ -29,7 +31,7 @@ export default function RegisterPage() {
       setLoading(true)
 
       try {
-        await api.post("/auth/register", form)
+        await api.post(ENDPOINTS.AUTH.REGISTER, form)
         startTransition(() => router.push("/login"))
       } catch (err) {
         console.error("[❌] Register error:", err?.response?.data || err.message)

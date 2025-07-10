@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { Skeleton } from "@/components/ui/skeleton"
 import api from "../../lib/api"
+import { ENDPOINTS } from "@/src/constants/endpoints"
 
 const DocumentCard = lazy(() => import("../../components/DocumentCard"))
 
@@ -34,7 +35,7 @@ export default function DashboardPage() {
     if (!confirmed) return
 
     try {
-      const res = await api.delete(`/documents/${docId}`)
+      const res = await api.delete(ENDPOINTS.DOCUMENTS.DELETE(id))
       if (res.status === 204) {
         setDocuments((prev) => prev.filter((doc) => doc.id !== docId))
       } else {
@@ -55,7 +56,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchDocs = async () => {
       try {
-        const res = await api.get("/documents/documents")
+        const res = await api.get(ENDPOINTS.DOCUMENTS.LIST)
         setDocuments(res.data)
       } catch (err) {
         console.error("[❌] Failed to fetch docs:", err?.response?.data || err.message)

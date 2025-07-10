@@ -2,6 +2,7 @@
 
 import { useState, useCallback, Suspense, lazy } from 'react';
 import api from '@/lib/api';
+import { ENDPOINTS } from '../../../constants/endpoints';
 
 // 🔁 Lazy load SummaryBlock for performance
 const SummaryBlock = lazy(() => import('@/components/SummaryBlock'));
@@ -16,7 +17,7 @@ export default function Summary({ docId }) {
     setLoading(true);
     setError('');
     try {
-      const res = await api.post(`/documents/${docId}/summarize`);
+      const res = await api.post(ENDPOINTS.DOCUMENTS.SUMMARIZE);
       setSummary(res.data.summary);
     } catch (err) {
       console.error('[❌] Summary error:', err);

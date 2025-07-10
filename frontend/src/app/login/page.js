@@ -10,6 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import api from "../../lib/api"
 import { useAuthStore } from "../../store/authStore"
+import { ENDPOINTS } from "../../constants/endpoints";
+
 
 export default function LoginPage() {
   const router = useRouter()
@@ -31,7 +33,9 @@ export default function LoginPage() {
       setLoading(true)
 
       try {
-        const res = await api.post("/auth/login", form)
+        const res = await api.post(ENDPOINTS.AUTH.LOGIN, form)
+        
+
         login(res.data.access_token)
         startTransition(() => {
           router.push("/dashboard")

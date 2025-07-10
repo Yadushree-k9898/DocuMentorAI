@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Progress } from "@/components/ui/progress"
 import api from "../../../lib/api"
 import { useAuthStore } from "../../../store/authStore"
+import { ENDPOINTS } from "@/src/constants/endpoints"
 
 export default function UploadPage() {
   const router = useRouter()
@@ -103,7 +104,7 @@ export default function UploadPage() {
           })
         }, 200)
 
-        await api.post("/documents/upload-pdf", formData, {
+        await api.post(ENDPOINTS.DOCUMENTS.UPLOAD, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         })
 
