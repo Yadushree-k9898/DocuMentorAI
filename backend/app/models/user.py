@@ -13,3 +13,7 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     documents = relationship("Document", back_populates="user")
+    
+    chats = relationship("ChatHistory", back_populates="user", cascade="all, delete")
+
+

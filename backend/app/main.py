@@ -5,7 +5,11 @@ from google.api_core.exceptions import ResourceExhausted
 from app.api.v1.endpoints import auth, documents, qa
 from app.db.base import Base
 from app.database import engine
-from app.exceptions.handlers import handle_resource_exhausted  # ✅ Custom handler
+from app.exceptions.handlers import handle_resource_exhausted 
+from fastapi.responses import JSONResponse
+from fastapi.requests import Request
+from starlette.exceptions import HTTPException as StarletteHTTPException
+from fastapi.exceptions import RequestValidationError
 
 # Create DB tables
 Base.metadata.create_all(bind=engine)
@@ -34,3 +38,27 @@ def root():
 app.include_router(auth.router, prefix="/api/v1/auth", tags=["Auth"])
 app.include_router(documents.router, prefix="/api/v1/documents", tags=["Documents"])
 app.include_router(qa.router, prefix="/api/v1/qa", tags=["Q&A"])
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail}
+    )
+
+@app.exception_handler(RequestValidationError)
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
+    return JSONResponse(
+        status_code=422,
+        content={"detail": exc.errors()}
+    )
+
+@app.exception_handler(Exception)
+async def unhandled_exception_handler(request: Request, exc: Exception):
+    # Optional: print to console
+    print(f"❌ UNHANDLED ERROR: {exc}")
+    return JSONResponse(
+        status_code=500,
+        content={"detail": f"Internal Server Error: {str(exc)}"}
+    )
