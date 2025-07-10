@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { SendHorizonal } from 'lucide-react';
+import { SendHorizonal, Trash2 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 
 export default function ChatBox({ docId }) {
@@ -13,73 +13,93 @@ export default function ChatBox({ docId }) {
   // 🔁 Load chat history on page load
   useEffect(() => {
     const fetchHistory = async () => {
-     
-
       try {
-  const res = await fetch(`/api/v1/qa/${docId}/history`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+        const res = await fetch(`/api/v1/qa/${docId}/history`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
 
-  const text = await res.text();
-  let data;
+        const text = await res.text();
+        let data;
 
-  try {
-    data = JSON.parse(text);
-  } catch {
-    throw new Error(`❌ Expected JSON, got: ${text.slice(0, 100)}...`);
-  }
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error(`❌ Expected JSON, got: ${text.slice(0, 100)}...`);
+        }
 
-  if (Array.isArray(data)) {
-    setHistory(data);
-  } else {
-    console.warn('[⚠️] Invalid chat history response:', data);
-  }
-} catch (err) {
-  console.error('[❌] Failed to fetch chat history:', err.message || err);
-}
-
+        if (Array.isArray(data)) {
+          setHistory(data);
+        } else {
+          console.warn('[⚠️] Invalid chat history response:', data);
+        }
+      } catch (err) {
+        console.error('[❌] Failed to fetch chat history:', err.message || err);
+      }
     };
 
     if (token) fetchHistory();
   }, [docId, token]);
 
- 
   const askQuestion = async () => {
-  if (!question.trim()) return;
-
-  setLoading(true);
-
-  try {
-    const res = await fetch(`/api/v1/qa/${docId}/ask?question=${encodeURIComponent(question)}`, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-
-    const text = await res.text();
-    let data;
+    if (!question.trim()) return;
+    setLoading(true);
 
     try {
-      data = JSON.parse(text);
-    } catch {
-      throw new Error(`❌ Expected JSON, got: ${text.slice(0, 100)}...`);
-    }
+      const res = await fetch(`/api/v1/qa/${docId}/ask?question=${encodeURIComponent(question)}`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-    const reply = data?.answer || data?.detail || '⚠️ No valid response from server.';
-    setHistory((prev) => [...prev, { question, answer: reply }]);
-  } catch (err) {
-    console.error('[❌] Ask failed:', err.message || err);
-    setHistory((prev) => [...prev, { question, answer: err.message || '❌ Failed to get answer.' }]);
-  } finally {
-    setQuestion('');
-    setLoading(false);
-  }
-};
+      const text = await res.text();
+      let data;
+
+      try {
+        data = JSON.parse(text);
+      } catch {
+        throw new Error(`❌ Expected JSON, got: ${text.slice(0, 100)}...`);
+      }
+
+      const reply = data?.answer || data?.detail || '⚠️ No valid response from server.';
+      setHistory((prev) => [...prev, { question, answer: reply }]);
+    } catch (err) {
+      console.error('[❌] Ask failed:', err.message || err);
+      setHistory((prev) => [...prev, { question, answer: err.message || '❌ Failed to get answer.' }]);
+    } finally {
+      setQuestion('');
+      setLoading(false);
+    }
+  };
+
+  const clearHistory = async () => {
+    if (!confirm('Are you sure you want to clear the chat history?')) return;
+    try {
+      await fetch(`/api/v1/qa/${docId}/history`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setHistory([]);
+    } catch (err) {
+      console.error('[❌] Failed to clear history:', err.message || err);
+    }
+  };
 
   return (
     <div className="mt-10">
-      <h3 className="text-lg font-semibold text-indigo-700 mb-2">💬 Ask a Question</h3>
+      <div className="flex justify-between items-center mb-2">
+        <h3 className="text-lg font-semibold text-indigo-700">💬 Ask a Question</h3>
+        {history.length > 0 && (
+          <button
+            onClick={clearHistory}
+            className="text-sm text-red-600 hover:underline flex items-center gap-1"
+          >
+            <Trash2 size={16} /> Clear Chat
+          </button>
+        )}
+      </div>
 
       <div className="flex gap-2">
         <input

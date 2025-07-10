@@ -4,6 +4,7 @@ from app.dependencies import get_current_user, get_db
 from sqlalchemy.orm import Session
 from app.models.document import Document
 from app.models.chat import ChatHistory 
+from fastapi import status
 
 router = APIRouter()
 
@@ -76,3 +77,21 @@ def get_chat_history(
     # 📜 Return chat history
     history = db.query(ChatHistory).filter_by(document_id=doc.id, user_id=current_user.id).order_by(ChatHistory.created_at.asc()).all()
     return [{"question": h.question, "answer": h.answer} for h in history]
+
+
+
+
+@router.delete("/{doc_id}/history", status_code=status.HTTP_204_NO_CONTENT)
+def delete_chat_history(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    # 🔐 Ensure user owns the document
+    doc = db.query(Document).filter_by(id=doc_id, user_id=current_user.id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    # 🗑️ Delete all chat history for this document and user
+    db.query(ChatHistory).filter_by(document_id=doc.id, user_id=current_user.id).delete()
+    db.commit()
