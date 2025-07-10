@@ -2,9 +2,11 @@ from fastapi import APIRouter, UploadFile, File, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.dependencies import get_db, get_current_user
 from app.models.user import User
+from app.models.chat import ChatHistory
 from app.models.document import Document
 from app.utils.pdf_utils import extract_chunks_from_pdf
 from app.services.document_service import summarize_text_with_gemini
+from fastapi import status
 
 import shutil, os, uuid, json
 from datetime import datetime
@@ -16,44 +18,6 @@ os.makedirs(UPLOAD_DIR, exist_ok=True)
 # ------------------------------------
 # 📤 Upload PDF Route
 # ------------------------------------
-# @router.post("/upload-pdf")
-# async def upload_pdf(
-#     file: UploadFile = File(...),
-#     db: Session = Depends(get_db),
-#     current_user=Depends(get_current_user)
-# ):
-#     if not file.filename.endswith(".pdf"):
-#         raise HTTPException(status_code=400, detail="Only PDF files allowed.")
-
-#     # Use unique filename to avoid overwriting
-#     unique_filename = f"{uuid.uuid4().hex}_{file.filename}"
-#     file_path = os.path.join(UPLOAD_DIR, unique_filename)
-
-#     # Save file
-#     with open(file_path, "wb") as buffer:
-#         shutil.copyfileobj(file.file, buffer)
-
-#     # Extract and convert chunks to dict
-#     chunks = extract_chunks_from_pdf(file_path)
-#     text = [chunk.dict() for chunk in chunks]
-
-#     # Create and save document
-#     document = Document(
-#         filename=unique_filename,
-#         text=text,
-#         user_id=current_user.id,
-#         created_at=datetime.utcnow()  # ensure your model supports this default
-#     )
-#     db.add(document)
-#     db.commit()
-#     db.refresh(document)
-
-#     return {
-#         "message": "PDF uploaded successfully",
-#         "document_id": document.id,
-#         "filename": document.filename,
-#         "created_at": document.created_at
-#     }
 
 
 @router.post("/upload-pdf")
@@ -190,3 +154,28 @@ def get_single_document(
         "text": document.text,
         "summary": document.summary or "No summary yet"
     }
+
+
+
+
+
+
+@router.delete("/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_document(
+    doc_id: int,
+    db: Session = Depends(get_db),
+    current_user=Depends(get_current_user)
+):
+    # 🔐 Ensure document belongs to user
+    doc = db.query(Document).filter_by(id=doc_id, user_id=current_user.id).first()
+    if not doc:
+        raise HTTPException(status_code=404, detail="Document not found.")
+
+    # 🧼 Delete associated chat history
+    db.query(ChatHistory).filter_by(document_id=doc.id, user_id=current_user.id).delete()
+
+    # ❌ Delete the document itself
+    db.delete(doc)
+    db.commit()
+
+    return

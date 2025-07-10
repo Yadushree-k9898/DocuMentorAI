@@ -16,32 +16,44 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-useEffect(() => {
-  if (hasHydrated && !token) {
-    router.push('/login');
-  }
-}, [hasHydrated, token]);
-
-
+  useEffect(() => {
+    if (hasHydrated && !token) {
+      router.push('/login');
+    }
+  }, [hasHydrated, token]);
 
   useEffect(() => {
-  const fetchDocs = async () => {
+    const fetchDocs = async () => {
+      try {
+        const res = await api.get('/documents/documents');
+        setDocuments(res.data);
+      } catch (err) {
+        console.error('[❌] Failed to fetch docs:', err?.response?.data || err.message);
+        setError('Failed to fetch documents');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (token) fetchDocs();
+  }, [token]);
+
+  const handleDelete = async (docId) => {
+    const confirmed = window.confirm("Are you sure you want to delete this document and its chat history?");
+    if (!confirmed) return;
+
     try {
-      console.log('[📡] Fetching documents...');
-      const res = await api.get('/documents/documents'); // full URL becomes /api/v1/documents/documents
-      console.log('[✅] Docs fetched:', res.data);
-      setDocuments(res.data);
+      const res = await api.delete(`/documents/${docId}`);
+      if (res.status === 204) {
+        setDocuments((prev) => prev.filter((doc) => doc.id !== docId));
+      } else {
+        alert('❌ Failed to delete document.');
+      }
     } catch (err) {
-      console.error('[❌] Failed to fetch docs:', err?.response?.data || err.message);
-      setError('Failed to fetch documents');
-    } finally {
-      setLoading(false);
+      console.error('❌ Delete error:', err?.response?.data || err.message);
+      alert('Failed to delete document.');
     }
   };
-
-  if (token) fetchDocs();
-}, [token]);
-
 
   if (!token) return null;
 
@@ -73,19 +85,19 @@ useEffect(() => {
         <p className="text-gray-600">You haven’t uploaded any documents yet.</p>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-         {documents.map((doc) => {
-  const cleanTitle = doc.filename.split('_').slice(1).join('_'); // removes UUID
-  return (
-    <DocumentCard
-      key={doc.id}
-      id={doc.id}
-      title={cleanTitle}
-      summary={doc.summary_preview}
-      uploadedAt={doc.created_at}
-    />
-  );
-})}
-
+          {documents.map((doc) => {
+            const cleanTitle = doc.filename.split('_').slice(1).join('_');
+            return (
+              <DocumentCard
+                key={doc.id}
+                id={doc.id}
+                title={cleanTitle}
+                summary={doc.summary_preview}
+                uploadedAt={doc.created_at}
+                onDelete={() => handleDelete(doc.id)} // ✅ pass onDelete
+              />
+            );
+          })}
         </div>
       )}
     </div>
