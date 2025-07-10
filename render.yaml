@@ -2,8 +2,11 @@ services:
   - type: web
     name: documentor-backend
     env: python
+    rootDir: backend
     buildCommand: pip install -r requirements.txt
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port 10000
     envVars:
       - key: PORT
         value: 10000
+      - key: GEMINI_API_KEY
+        value: YOUR_GEMINI_API_KEY  
