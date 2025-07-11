@@ -1,26 +1,22 @@
-const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api/v1';
+const BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export const ENDPOINTS = {
   AUTH: {
-    LOGIN: `${BASE_URL}/auth/login`,
-    REGISTER: `${BASE_URL}/auth/register`,
+    LOGIN: `${BASE_URL}/api/v1/auth/login`,
+    REGISTER: `${BASE_URL}/api/v1/auth/register`,
   },
 
   DOCUMENTS: {
-    UPLOAD: `${BASE_URL}/documents/upload-pdf`,
-    LIST: `${BASE_URL}/documents/documents`,
-    DETAIL: (docId) => `${BASE_URL}/documents/documents/${docId}`,
-    DELETE: (docId) => `${BASE_URL}/documents/${docId}`, 
-    SUMMARIZE: (docId) => `${BASE_URL}/documents/${docId}/summarize`,
+    UPLOAD: `${BASE_URL}/api/v1/documents/upload-pdf`,
+    LIST: `${BASE_URL}/api/v1/documents/documents`,
+    DETAIL: (docId) => `${BASE_URL}/api/v1/documents/documents/${docId}`,
+    DELETE: (docId) => `${BASE_URL}/api/v1/documents/${docId}`,
+    SUMMARIZE: (docId) => `${BASE_URL}/api/v1/documents/${docId}/summarize`,
   },
 
   QA: {
-    ASK: (docId, question) => `${BASE_URL}/qa/${docId}/ask?question=${encodeURIComponent(question)}`,
-    HISTORY: (docId) => `${BASE_URL}/qa/${docId}/history`,
-    CLEAR_HISTORY: (docId) => `${BASE_URL}/qa/${docId}/history`,
+    ASK: (docId, question) => `${BASE_URL}/api/v1/qa/${docId}/ask?question=${encodeURIComponent(question)}`,
+    HISTORY: (docId) => `${BASE_URL}/api/v1/qa/${docId}/history`,
+    CLEAR_HISTORY: (docId) => `${BASE_URL}/api/v1/qa/${docId}/history`,
   },
-
-
 };
-
-
