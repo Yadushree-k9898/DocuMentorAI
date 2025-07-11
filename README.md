@@ -153,8 +153,8 @@ npm run dev
 ```
 
 Your application will be available at:
-- **Frontend**: http://localhost:3000
-- **Backend API**: http://localhost:8000
+- **Frontend**: [DocuMentorAi-Frontend](https://docu-mentor-ai.vercel.app/)
+- **Backend API**: [DocuMentorAi-Backend](https://huggingface.co/spaces/yadushree2002/documentor-ai)
 - **API Documentation**: http://localhost:8000/docs
 
 ---
