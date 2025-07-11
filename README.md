@@ -80,17 +80,3 @@ cp .env.example .env
 # Run the server
 uvicorn app.main:app --reload
 
-
-2. Frontend (Next.js)
-
-cd ../frontend
-
-# Install packages
-npm install
-
-# Setup environment
-cp .env.example .env
-# Set NEXT_PUBLIC_API_URL to your backend URL
-
-# Run
-npm run dev
