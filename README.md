@@ -155,7 +155,7 @@ npm run dev
 Your application will be available at:
 - **Frontend**: [DocuMentorAi-Frontend](https://docu-mentor-ai.vercel.app/)
 - **Backend API**: [DocuMentorAi-Backend](https://huggingface.co/spaces/yadushree2002/documentor-ai)
-- **API Documentation**: http://localhost:8000/docs
+- **API Documentation**: [Docs](https://docu-mentor-ai.vercel.app/docs)
 
 ---
 
