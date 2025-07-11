@@ -13,7 +13,7 @@ class DocumentChunk(BaseModel):
     metadata: Dict[str, int] = Field(default_factory=dict, description="Metadata such as start_word and end_word indices")
 
     class Config:
-        schema_extra = {
+        json_schema_extra = {
             "example": {
                 "doc_id": "b7d6c8e8-4a4d-47f5-b1b2-5b1b792f4a00",
                 "page_number": 2,
