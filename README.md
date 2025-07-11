@@ -155,7 +155,7 @@ npm run dev
 Your application will be available at:
 - **Frontend**: [DocuMentorAi-Frontend](https://docu-mentor-ai.vercel.app/)
 - **Backend API**: [DocuMentorAi-Backend](https://huggingface.co/spaces/yadushree2002/documentor-ai)
-- **API Documentation**: [Docs](https://docu-mentor-ai.vercel.app/docs)
+
 
 ---
 
@@ -374,9 +374,9 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ### 📬 Contact & Support
 
-- 📧 Email: [your.email@example.com](mailto:your.email@example.com)
-- 🐦 Twitter: [@yourusername](https://twitter.com/yourusername)
-- 💼 LinkedIn: [Your Profile](https://linkedin.com/in/yourprofile)
+- 📧 Email: [kyadushree47@gmail.com](kyadushree47@gmail.com)
+- 🐦 Twitter: [https://x.com/KYadushree](https://x.com/KYadushree)
+- 💼 LinkedIn: [https://www.linkedin.com/in/yadushree/](https://www.linkedin.com/in/yadushree/)
 
 ---
 
