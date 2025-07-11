@@ -35,7 +35,7 @@ export default function DashboardPage() {
     if (!confirmed) return
 
     try {
-      const res = await api.delete(ENDPOINTS.DOCUMENTS.DELETE(id))
+      const res = await api.delete(ENDPOINTS.DOCUMENTS.DELETE(docId))
       if (res.status === 204) {
         setDocuments((prev) => prev.filter((doc) => doc.id !== docId))
       } else {
