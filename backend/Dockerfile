@@ -1,5 +1,5 @@
 # ✅ Use PyTorch base image with CPU + Python 3.11
-FROM pytorch/pytorch:2.1.0-cpu-py3.11
+FROM python:3.11-slim
 
 WORKDIR /app
 
