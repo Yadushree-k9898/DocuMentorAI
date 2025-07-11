@@ -77,5 +77,20 @@ pip install -r requirements.txt
 cp .env.example .env
 # Fill in your GEMINI_API_KEY and DB_URL
 
+
+###Frontend (Next.js)
+
+cd ../frontend
+
+# Install packages
+npm install
+
+# Setup environment
+cp .env.example .env
+# Set NEXT_PUBLIC_API_URL to your backend URL
+
+# Run the app
+npm run dev
+
 # Run the server
 uvicorn app.main:app --reload
