@@ -29,12 +29,7 @@ export default function Home() {
     },
   ]
 
-  const stats = [
-    { number: "10K+", label: "Documents Processed" },
-    { number: "99.9%", label: "Accuracy Rate" },
-    { number: "< 2s", label: "Response Time" },
-    { number: "24/7", label: "Available" },
-  ]
+
 
   return (
     <div className="relative overflow-hidden">
@@ -107,12 +102,7 @@ export default function Home() {
             transition={{ duration: 0.8, delay: 0.4 }}
             className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-20"
           >
-            {stats.map((stat, index) => (
-              <div key={index} className="text-center">
-                <div className="text-3xl sm:text-4xl font-bold text-primary mb-2">{stat.number}</div>
-                <div className="text-sm text-muted-foreground">{stat.label}</div>
-              </div>
-            ))}
+
           </motion.div>
         </div>
       </section>
