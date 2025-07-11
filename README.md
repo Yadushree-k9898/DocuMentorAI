@@ -1,4 +1,4 @@
-# 🧠 DocuMentor AI
+# 📜 DocuMentor AI
 
 <div align="center">
   <h3>🚀 Intelligent Document Understanding & Q&A Assistant</h3>
